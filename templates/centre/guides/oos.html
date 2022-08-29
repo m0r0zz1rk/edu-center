@@ -1,0 +1,527 @@
+{% extends 'base.html' %}
+{% load static guides_tags profile_tags %}
+{% block js %}
+<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/ajax.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/profile.js' %}" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="{% static 'js/jquery.maskedinput.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/jquery.maskedinput.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/jquery-3.2.1.min.js' %}" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.maskedinput@1.4.1/src/jquery.maskedinput.min.js" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+    {% get_mos as mos %}
+    {% get_types as types %}
+    <div class="main-center">
+        <h2>Справочник организаций</h2><br>
+        <table class="table_crit">
+            <thead>
+                <tr>
+                    <th colspan="6">
+
+                        {% if find != 'yes' %}
+                            Количество организаций в базе: {{ oos.count }} (отображены последние 75 организаций)
+                        {% else %}
+                            Количество найденных организаций в базе: {{ oos.count }}
+                        {% endif %}<br>
+                        <a href="#win_oo_new"><i class="fa fa-plus fa-2x"></i></a>
+                        <a href="#win_find"><img src="{% static 'work/discover.png' %}" width="3%" height="3%"></a>
+                    </th>
+                </tr>
+                <tr>
+                    <th>МО <a href="#win_mofilter"><img src="{% static 'work/filter.png' %}" width="10vw" height="10vw"></a></th>
+                    <th>Краткое название</th>
+                    <th>Полное название</th>
+                    <th>Тип <a href="#win_typefilter"><img src="{% static 'work/filter.png' %}" width="10vw" height="10vw"></a></th>
+                    <th>Форма</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if find != 'yes' %}
+                    {% for oo in oos|slice:75 %}
+                        <tr>
+                            <td>{{ oo.mo.name }}</td>
+                            <td>{{ oo.short_name }}</td>
+                            <td>{{ oo.full_name }}</td>
+                            <td>{{ oo.type_oo.name }}</td>
+                            <td>{{ oo.form }}</td>
+                            <td>
+                                <table>
+                                    <tr style="border: none;">
+                                        <td style="border: none;">
+                                           <a href="#win_oo_{{ oo.id }}"><i class="fa fa-pencil-square-o fa-2x"></i></a>
+                                             <a href="#x" class="overlay" id="win_oo_{{ oo.id }}"></a>
+                                                <div class="popup">
+                                                  <center>
+                                                      <form action="{% url 'centre:change_oo' %}" method="POST">
+                                                          {% csrf_token %}
+                                                          <input type="hidden" name="oo_id" value="{{ oo.id }}">
+                                                          <table class="table_crit">
+                                                              <thead>
+                                                                <tr>
+                                                                    <th colspan="2">
+                                                                        Редактировании информации об организации
+                                                                    </th>
+                                                                </tr>
+                                                              </thead>
+                                                              <tbody>
+                                                                    <tr>
+                                                                        <td>
+                                                                            МО:
+                                                                        </td>
+                                                                        <td>
+                                                                            <select class="form-control" name="munobr">
+                                                                                {% for mo in mos %}
+                                                                                    {% if mo.id == oo.mo_id %}
+                                                                                        <option value="{{ mo.id }}" selected>{{ mo.name }}</option>
+                                                                                    {% else %}
+                                                                                        <option value="{{ mo.id }}">{{ mo.name }}</option>
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            Краткое название:
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="text" class="form-control" name="shortname" value="{{ oo.short_name }}" required>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            Полное название:
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="text" class="form-control" name="fullname" value="{{ oo.full_name }}" required>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            Тип организации:
+                                                                        </td>
+                                                                        <td>
+                                                                            <select class="form-control" name="type_oo">
+                                                                                {% for type in types %}
+                                                                                    {% if type.id == oo.type_oo_id %}
+                                                                                        <option value="{{ type.id }}" selected>{{ type.name }}</option>
+                                                                                    {% else %}
+                                                                                        <option value="{{ type.id }}">{{ type.name }}</option>
+                                                                                    {% endif %}
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            Форма:
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="text" class="form-control" name="form" value="{{ oo.form }}" required>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="2">
+                                                                            <div style="width: 50%; margin: 0 auto;">
+                                                                                <button type="submit" class=" btn btn-lg btn-primary"
+                                                                                    onclick="document.location.href ='#'">
+                                                                                    Изменить информацию
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                              </tbody>
+                                                          </table>
+                                                      </form>
+                                                      <div style="width: 50%; margin: 0 auto;">
+                                                          <button type="button" class=" btn btn-lg btn-primary"
+                                                                  onclick="window.location.href='#close';">
+                                                              Закрыть
+                                                          </button><br>
+                                                      </div>
+                                                  </center>
+                                            </div>
+                                        </td>
+                                        <td style="border: none;">
+                                            <form action="{% url 'centre:delete_oo' %}" method="POST" id="del_form_{{ oo.id }}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="oo_id" value="{{ oo.id }}">
+                                                <div class="inl">
+                                                   <a href="javascript:;"
+                                                     onclick="if (confirm('Вы действительно хотите удалить организацию?')){document.getElementById('del_form_{{ oo.id }}').submit();}">
+                                                       <i class="fa fa-trash fa-2x"></i>
+                                                   </a>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    {% for oo in oos %}
+                        <tr>
+                            <td>{{ oo.mo.name }}</td>
+                            <td>{{ oo.short_name }}</td>
+                            <td>{{ oo.full_name }}</td>
+                            <td>{{ oo.type_oo.name }}</td>
+                            <td>{{ oo.form }}</td>
+                            <td>
+                                <div class="inl">
+                                    <div class="inl">
+                                        <a href="#win_oo_{{ oo.id }}"><i class="fa fa-pencil-square-o fa-2x"></i></a>
+                                    </div>
+                                    <div class="inl">
+                                        <form action="{% url 'centre:delete_oo' %}" method="POST" id="del_form_{{ oo.id }}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="oo_id" value="{{ oo.id }}">
+                                               <a href="javascript:;"
+                                                 onclick="if (confirm('Вы действительно хотите удалить организацию?')){ document.getElementById('del_form_{{ oo.id }}').submit(); }">
+                                                   <i class="fa fa-trash fa-2x"></i>
+                                               </a>
+                                        </form>
+                                     </div>
+                                    <a href="#x" class="overlay" id="win_oo_{{ oo.id }}"></a>
+                                        <div class="popup">
+                                          <center>
+                                              <form action="{% url 'centre:change_oo' %}" method="POST">
+                                                  {% csrf_token %}
+                                                  <input type="hidden" name="oo_id" value="{{ oo.id }}">
+                                                  <table class="table_crit">
+                                                      <thead>
+                                                        <tr>
+                                                            <th colspan="2">
+                                                                Редактировании информации об организации
+                                                            </th>
+                                                        </tr>
+                                                      </thead>
+                                                      <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    МО:
+                                                                </td>
+                                                                <td>
+                                                                    <select class="form-control" name="munobr">
+                                                                        {% for mo in mos %}
+                                                                            {% if mo.id == oo.mo_id %}
+                                                                                <option value="{{ mo.id }}" selected>{{ mo.name }}</option>
+                                                                            {% else %}
+                                                                                <option value="{{ mo.id }}">{{ mo.name }}</option>
+                                                                            {% endif %}
+                                                                        {% endfor %}
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    Краткое название:
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="form-control" name="shortname" value="{{ oo.short_name }}" required>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    Полное название:
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="form-control" name="fullname" value="{{ oo.full_name }}" required>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    Тип организации:
+                                                                </td>
+                                                                <td>
+                                                                    <select class="form-control" name="type_oo">
+                                                                        {% for type in types %}
+                                                                            {% if type.id == oo.type_oo_id %}
+                                                                                <option value="{{ type.id }}" selected>{{ type.name }}</option>
+                                                                            {% else %}
+                                                                                <option value="{{ type.id }}">{{ type.name }}</option>
+                                                                            {% endif %}
+                                                                        {% endfor %}
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    Форма:
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="form-control" name="form" value="{{ oo.form }}" required>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td colspan="2">
+                                                                    <div style="width: 50%; margin: 0 auto;">
+                                                                        <button type="submit" class=" btn btn-lg btn-primary"
+                                                                            onclick="document.location.href ='#'">
+                                                                            Изменить информацию
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                      </tbody>
+                                                  </table>
+                                              </form>
+                                              <div style="width: 50%; margin: 0 auto;">
+                                                  <button type="button" class=" btn btn-lg btn-primary"
+                                                          onclick="window.location.href='#close';">
+                                                      Закрыть
+                                                  </button><br>
+                                              </div>
+                                          </center>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <form method="GET">
+    <a href="#x" class="overlay" id="win_mofilter"></a>
+        <div class="popup">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="2">
+                            Фильтрация по МО
+                        </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                        {% csrf_token %}
+                        <tr>
+                            <td>
+                                Выберите нужные МО:
+                            </td>
+                            <td>
+                                <div style="text-align:left">
+                                    {% for mo in mos %}
+                                        <input type="checkbox" name="check_mos[]" value="{{ mo.id }}">{{ mo.name }}<br>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div style="width: 50%; margin: 0 auto;">
+                                    <button type="submit" class=" btn btn-lg btn-primary"
+                                        onclick="document.location.href ='#'">
+                                        Применить фильтр
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                  </tbody>
+              </table>
+              <table border="0">
+                  <tr>
+                      <td>
+                          <button type="button" class=" btn btn-lg btn-primary"
+                                  onclick="window.location.href='#close';">
+                              Закрыть
+                          </button><br>
+                      </td>
+                  </tr>
+              </table>
+          </center>
+        </div>
+    <a href="#x" class="overlay" id="win_typefilter"></a>
+        <div class="popup">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="2">
+                            Фильтрация по типу организации
+                        </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                        <tr>
+                            <td>
+                                Выберите нужные типы организаций:
+                            </td>
+                            <td>
+                                <div style="text-align:left">
+                                    {% for type in types %}
+                                        <input type="checkbox" name="check_types[]" value="{{ type.id }}">{{ type.name }}<br>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div style="width: 50%; margin: 0 auto;">
+                                    <button type="submit" class=" btn btn-lg btn-primary"
+                                        onclick="document.location.href ='#'">
+                                        Применить фильтр
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                  </tbody>
+              </table>
+              <table border="0">
+                  <tr>
+                      <td>
+                          <button type="button" class=" btn btn-lg btn-primary"
+                                  onclick="window.location.href='#close';">
+                              Закрыть
+                          </button><br>
+                      </td>
+                  </tr>
+              </table>
+          </center>
+        </div>
+    <a href="#x" class="overlay" id="win_find"></a>
+        <div class="popup">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="2">
+                            Поиск по названию организации
+                        </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                        <tr>
+                            <td>
+                                Краткое название:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="find_short">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Полное название:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="find_full">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div style="width: 50%; margin: 0 auto;">
+                                    <button type="submit" class=" btn btn-lg btn-primary"
+                                        onclick="document.location.href ='#'">
+                                        Поиск
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                  </tbody>
+              </table>
+              <table border="0">
+                  <tr>
+                      <td>
+                          <button type="button" class=" btn btn-lg btn-primary"
+                                  onclick="window.location.href='#close';">
+                              Закрыть
+                          </button><br>
+                      </td>
+                  </tr>
+              </table>
+          </center>
+        </div>
+    </form>
+    <a href="#x" class="overlay" id="win_oo_new"></a>
+        <div class="popup">
+              <center>
+                  <form action="{% url 'centre:new_oo' %}" method="POST">
+                      {% csrf_token %}
+                      <input type="hidden" name="oo_id" value="{{ oo.id }}">
+                      <table class="table_crit">
+                          <thead>
+                            <tr>
+                                <th colspan="2">
+                                    Добавить новую организацию
+                                </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                                <tr>
+                                    <td>
+                                        МО:
+                                    </td>
+                                    <td>
+                                        <select class="form-control" name="munobr">
+                                            {% for mo in mos %}
+                                                <option value="{{ mo.id }}">{{ mo.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Краткое название:
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="shortname" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Полное название:
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="fullname" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Тип организации:
+                                    </td>
+                                    <td>
+                                        <select class="form-control" name="type_oo">
+                                            {% for type in types %}
+                                                <option value="{{ type.id }}">{{ type.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Форма:
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" name="form" required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <div style="width: 50%; margin: 0 auto;">
+                                            <button type="submit" class=" btn btn-lg btn-primary"
+                                                onclick="document.location.href ='#'">
+                                                Добавить организацию
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                          </tbody>
+                      </table>
+                  </form>
+                  <div style="width: 50%; margin: 0 auto;">
+                      <button type="button" class=" btn btn-lg btn-primary"
+                              onclick="window.location.href='#close';">
+                          Закрыть
+                      </button><br>
+                  </div>
+              </center>
+        </div>
+{% endblock %}

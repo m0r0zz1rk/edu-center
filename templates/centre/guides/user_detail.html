@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static registr_tags %}
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.maskedinput@1.4.1/src/jquery.maskedinput.min.js" type="text/javascript"></script>
+<script src="{% static 'js/profile.js' %}" type="text/javascript"></script>
+{% endblock js %}
+{% block body %}
+    {% get_states as states %}
+    <div class="main-center">
+        <h2>Редактирование информации пользователя {{ user.surname }} {{ user.name }} {{ user.patronymic }}</h2><br>
+        <form action="{% url 'centre:change_user' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ user.id }}">
+            <div class="form-floating">
+              <select class="form-control" id="SelectState" name="state" required>
+                 {% for el in states %}
+                    {% if el.name == user.state.name %}
+                        <option value="{{ el.id }}" selected>{{ el.name }}</option>
+                    {% else %}
+                        <option value="{{ el.id }}">{{ el.name }}</option>
+                    {% endif %}
+                 {% endfor %}
+              </select>
+              <label for="SelectState">Государство</label>
+            </div>
+            <div class="form-floating" id="DivSnils">
+              <input type="text" class="form-control" id="InputSnils" name="snils" value="{{ user.snils }}" required>
+              <label for="InputSnils">СНИЛС</label>
+              <div class="err_snils"></div>
+            </div>
+            <div class="form-floating">
+              <input type="email" class="form-control" id="InputEmail" name="email" value="{{ user.user.email }}" required>
+              <label for="InputEmail">Электронная почта</label>
+              <div class="err_email"></div>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="InputPhone" name="phone" value="{{ user.phone }}" required>
+              <label for="InputPhone">Контактный телефон</label>
+              <div class="err_phone"></div>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="InputSurname" name="surname" value="{{ user.surname }}" required>
+              <label for="InputSurname">Фамилия</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="InputName" name="name" value="{{ user.name }}" required>
+              <label for="InputName">Имя</label>
+            </div>
+            <div class="form-floating">
+              <input type="text" class="form-control" id="InputPatronymic" name="patronymic" value="{{ user.patronymic }}" required>
+              <label for="InputPatronymic">Отчество</label>
+            </div>
+            <div class="form-floating">
+              <select class="form-control" id="SelectSex" name="sex" required>
+                  {% if user.sex is True %}
+                      <option value="True" selected>Мужской</option>
+                      <option value="False">Женский</option>
+                  {% else %}
+                        <option value="True">Мужской</option>
+                      <option value="False" selected>Женский</option>
+                  {% endif %}
+              </select>
+              <label for="SelectSex">Пол</label>
+            </div>
+            <div class="form-floating">
+              <input type="date" class="form-control" id="InputBirthday" name="birthday" value="{{ user.birthday|date:'Y-m-d' }}" required>
+              <label for="SelectState">Дата рождения</label>
+              <div class="err_birthdate"></div>
+            </div>
+            <br>
+            <button type="submit" class=" btn rotate-btn btn-lg btn-primary">
+                Сохранить изменения
+            </button>
+        </form>
+    </div>
+{% endblock %}

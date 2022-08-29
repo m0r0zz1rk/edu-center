@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static registration_tags %}
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.maskedinput@1.4.1/src/jquery.maskedinput.min.js" type="text/javascript"></script>
+<script src="{% static 'js/students/course_reg.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/students/masked.js' %}" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+    {% get_course as course  %}
+    <div class="main-center">
+        <div style="width: 50vw; margin: 0 auto;">
+            <h2>Анкета для регистрации на курс<br> "{{ course.program.name }}"</h2><br>
+        </div>
+        <table class="table_crit">
+            <thead>
+                <th colspan="2">
+                    Заполните указанные ниже поля анкеты
+                    <div class="title"></div>
+                </th>
+            </thead>
+            <tbody>
+                <tr></tr>
+                <tr>
+                    <td style="width: 25%;">
+                        Работа:
+                    </td>
+                    <td>
+                        <input type="checkbox" id="job" name="check_job" onclick="CheckboxJob();">
+                        <label for="job">Безработный</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Регион:
+                    </td>
+                    <td>
+                        <div id="RegionDiv"></div>
+                    </td>
+                </tr>
+                <tr id="tr_mo" style="visibility: collapse;">
+                    <td>Муниципальное образование:</td>
+                    <td>
+                        <div id="MoDiv"></div>
+                    </td>
+                </tr>
+                <tr id="tr_oo" style="visibility: collapse;">
+                    <td>Организация:</td>
+                    <td>
+                        <div id="oo_div"></div>
+                    </td>
+                </tr>
+                <tr id="tr_poscat" style="visibility: collapse;">
+                    <td>Категория должности:</td>
+                    <td>
+                        <div id="oo_poscat"></div>
+                    </td>
+                </tr>
+                <tr id="tr_pos" style="visibility: collapse;">
+                    <td>Должность:</td>
+                    <td>
+                        <div id="oo_pos"></div>
+                    </td>
+                </tr>
+                <tr id="tr_edulevel" style="visibility: collapse;">
+                    <td>Уровень образования:</td>
+                    <td>
+                        <div id="edu_level"></div>
+                    </td>
+                </tr>
+                <tr id="tr_eduload">
+                    <td colspan="2">
+                        <div id="edu_load"></div>
+                    </td>
+                </tr>
+                <tr id="tr_educat" style="visibility: collapse;">
+                    <td>Категория получаемого образования:</td>
+                    <td>
+                        <div id="edu_cat"></div>
+                    </td>
+                </tr>
+                <tr id="tr_edufile" style="visibility: collapse;">
+                    <td><div id="edu_file_title"></div></td>
+                    <td>
+                        <div id="edu_file"></div>
+                    </td>
+                </tr>
+                <tr id="tr_surname" style="visibility: collapse;">
+                    <td>Фамилия в дипломе:</td>
+                    <td>
+                        <input type="text" id="InputSurname" class="form-control" onchange="CheckSurname();" required>
+                    </td>
+                </tr>
+                <tr id="tr_surinfo" style="visibility: collapse;">
+                    <td colspan="2">
+                        <b style="color: red">Ваша текущая фамилия отличается от фамилии, указанной в дипломе.
+                        Пожалуйста, загрузите скан или фотокопию документа о смене фамилии.</b>
+                    </td>
+                </tr>
+                <tr id="tr_changesur" style="visibility: collapse;">
+                    <td>Документ о смене фамилии:</td>
+                    <td>
+                        <div id="change_surname"></div>
+                    </td>
+                </tr>
+                <tr id="tr_eduserial" style="visibility: collapse;">
+                    <td>Серия диплома:</td>
+                    <td>
+                        <input type="text" id="InputSerial" class="form-control" required>
+                    </td>
+                </tr>
+                <tr id="tr_edunumber" style="visibility: collapse;">
+                    <td>Номер диплома:</td>
+                    <td>
+                        <input type="text" id="InputNumber" class="form-control" required>
+                    </td>
+                </tr>
+                <tr id="tr_edudate" style="visibility: collapse;">
+                    <td>Дата выдачи диплома:</td>
+                    <td>
+                        <input type="date" id="EduDate" class="form-control" required>
+                    </td>
+                </tr>
+                <tr id="tr_radio" style="visibility: collapse;">
+                    <td>Оплата</td>
+                    <td>
+                        <table style="margin: 0 auto;border: none;">
+                            <tr>
+                                <td style="border: none;">
+                                    <input type="radio" id="phys" name="pay" value="True" style="display: inline;" checked>
+                                </td>
+                                <td style="border: none; text-align: left;">
+                                    <label for="phys">Физическое лицо</label>
+                                </td>
+                            </tr>
+                            <tr style="border: none; align: left;">
+                                <td style="border: none;">
+                                    <input type="radio" id="legal" name="pay" value="False" style="display: inline;">
+                                </td>
+                                <td style="border: none; text-align: left;">
+                                    <label for="legal">Юридическое лицо</label>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr id="tr_getcert" style="visibility: collapse;">
+                    <td style="width: 25%;">
+                        Получение удостоверения:
+                    </td>
+                    <td>
+                        <input type="checkbox" id="GetCert" onclick="CheckCert();">
+                        <label for="GetCert">Отправить почтой</label>
+                    </td>
+                </tr>
+                <tr id="tr_address" style="visibility: collapse;">
+                    <td style="width: 25%;">
+                        Почтовый адрес для отправки удостоверения:
+                    </td>
+                    <td>
+                        <div id="cert_addr"></div>
+                    </td>
+                </tr>
+                <tr id="tr_checkbutton" style="visibility: collapse;">
+                    <td colspan="2">
+                        <button type="button" id="ButtonCheck" class="btn btn-lg btn-primary"
+                                onclick="AcceptForm();">
+                            Проверить анкету
+                        </button>
+                        <div class="checkform_info"></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <a href="#x" class="overlay" id="win"></a>
+        <div class="popup_add">
+            <button type="button" class="m-auto w-25 btn btn-lg btn-primary"
+                                      onclick="window.location.href='#close';">
+                  Закрыть
+              </button>
+        </div>
+    <script>
+        var check_form = true;
+        var id_group = {{ id_group }};
+        $(document).ready(function () {
+            Initial();
+        });
+    </script>
+{% endblock %}

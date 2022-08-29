@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block js %}
+{% endblock %}
+{% block body %}
+{% load static %}
+    <table border="0" style="margin:0 auto;">
+        <tr>
+            <td>
+                <button class=" btn btn-lg btn-primary"
+                    onclick="document.location.href = '{% url 'dep:courseslist' %}'">
+                    Курсы (ОУ)
+                </button>
+            </td>
+            <td>
+                <button class=" btn btn-lg btn-primary"
+                        onclick="document.location.href = '{% url 'dep:eventslist' %}'">
+                    Мероприятия (ИКУ)
+                </button>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

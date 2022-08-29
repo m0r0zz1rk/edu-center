@@ -1,0 +1,38 @@
+div[class^='childwr_']{
+    width: 85vw;
+    display: grid;
+    grid-template-columns: repeat( auto-fill, minmax(340px, 1fr) );
+    align-items: stretch;
+    column-gap: 20px;
+    row-gap: 20px;
+    background-color: white;
+    border-radius: 5px;
+    text-align: center;
+    color: white;
+}
+
+div[class^='box'] {
+  min-width:300px;
+  height: 100%;
+  display: grid;
+  background-color: #d8d8d8;
+  align-self : stretch;
+  color: black;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+div[class^='add'] {
+  min-width: 50vw;
+  height: 100%;
+  display: relative;
+  float: left;
+  background-color: #d8d8d8;
+  color: black;
+  border-radius: 5px;
+  padding: 20px;
+  -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}

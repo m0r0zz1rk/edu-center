@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="{% static 'work\favicon.ico' %}">
+    <title>АИС "Учебный центр"</title>
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'bootstrap/css/fontawesome.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/notif.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/sidebar.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/header.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/base.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/tables.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/modal.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/wraper.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/login_radio_rep.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/fontawesome/css/font-awesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/fontawesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+    {% block js %}{% endblock %}
+</head>
+<body class="text-center">
+    <nav class="header">{% include 'header.html' %}</nav>
+    <nav class="main-menu">{% include 'sidebar.html' %}</nav>
+    <nav class="nav-main">{% block body %}{% endblock %}</nav>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                 <div class="tn-box tn-box-color-2" style="background:#d40000">
+                    <p>{{ message }}</p>
+                   <div class="tn-progress"></div>
+                 </div>
+            {% endif %}
+            {% if message.tags == 'success' %}
+                 <div class="tn-box tn-box-color-2" style="background:#226440">
+                    <p>{{ message }}</p>
+                   <div class="tn-progress"></div>
+                 </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,73 @@
+.nav-main {
+    position: relative;
+    left: 30px;
+    right: 30px;
+    margin: 60px auto;
+    font-family: Circe;
+    font-size: 12pt;
+    display: flex;
+    align: center;
+    max-width: 85vw;
+    max-height: 70vh;
+    justify-content: center;
+}
+
+button {
+    width: fit-content;
+}
+div[class*='err_'] {
+    color: red;
+}
+
+.text-cent {
+    text-align: center;
+}
+
+.tables_container {
+    max-width:80%;
+}
+.main_center {
+    max-width: 70%;
+    height: 100%;
+    margin: 0 auto;
+    user-select: text;
+}
+
+.inl {
+    display: inline-block;
+}
+
+#gif_load {
+    width: 10%;
+    height: 10%;
+    magin: 0 auto;
+}
+
+.load {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.container_pass {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+div[class*='RegistrShowHide'], div[class*='RegistrPass'] {
+    display: inline-block;
+    width: 80%;
+    height: 100%;
+}
+
+@font-face {
+    font-family: Circe;
+    src: local('Circe'),
+    url("fonts/circe.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: Circe-Bold;
+    src: local('Circe Bold'),
+    url("fonts/circe-bold.ttf") format("truetype");
+}

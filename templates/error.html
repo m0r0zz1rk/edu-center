@@ -1,0 +1,10 @@
+{% extends 'authen/base_authen.html' %}
+{% load static %}
+
+{% block body %}
+<main class="form-signin m-auto">
+  <!-- <form method="POST"> -->
+    <img class="mb-4" src="{% static 'work/error.png' %}" alt="" width="50%" height="50%">
+    <h1 class="h3 mb-3 fw-normal">{{ error }}</h1>
+</main>
+{% endblock %}

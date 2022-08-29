@@ -1,0 +1,71 @@
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+@media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+      font-size: 3.5rem;
+    }
+}
+
+.registr_main {
+    width:100%;
+}
+
+.form-signin {
+    /* width: 100%;
+    height: 100%; */
+     max-width: 35%;
+    max-height: 75%;
+    padding: 15px;
+}
+
+.form-registr {
+    /* width: 100%;
+    height: 100%; */
+    max-width: 35%;
+    padding: 15px;
+}
+
+body {
+  font-family: Circe;
+  font-size: 14pt;
+}
+
+@font-face {
+    font-family: Circe;
+    src: local('Circe'),
+    url("fonts/circe.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: Circe-Bold;
+    src: local('Circe Bold'),
+    url("fonts/circe-bold.ttf") format("truetype");
+}
+
+.container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+    width: 100%;
+    padding-right: var(--bs-gutter-x,.75rem);
+    padding-left: var(--bs-gutter-x,.75rem);
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.col-md-3 {
+    flex: 0 0 auto;
+    width: 25%;
+}
+
+.bg-light {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-light-rgb),var(--bs-bg-opacity))!important;
+}
+
+.d-md-block {
+    display: block!important;
+}

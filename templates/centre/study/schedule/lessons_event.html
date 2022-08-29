@@ -1,0 +1,197 @@
+{% extends 'authen/base_authen.html' %}
+{% load static lessons_tags %}
+{% block js %}
+<script src="{% static 'js/ajax.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/eventlesson.js' %}" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<script src="{% static 'js/jquery.maskedinput.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/jquery.maskedinput.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/jquery-3.2.1.min.js' %}" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.maskedinput@1.4.1/src/jquery.maskedinput.min.js" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+<main class="m-auto" style="font-size: 12pt;">
+  {% get_teachers as teachers %}
+  {% get_days as days %}
+   <button class="btn btn-lg btn-primary"
+    onclick="window.location.href='{% url 'centre:schedulelist' %}'">
+    Вернуться к списку расписаний
+  </button>
+    <h1 class="h3 mb-3 fw-normal">Расписание занятий для учебной группы<br>"{{ group.code }}"<br></h1>
+    <table class="table_crit">
+      <thead style="position: -webkit-sticky;
+  position: sticky;
+  top: -3px; // при нуле в chrome остаётся странный зазор
+  z-index: 2;">
+        <tr>
+          <th rowspan="2">Начало</th>
+          <th rowspan="2">Окончание</th>
+          <th rowspan="2">Тема</th>
+          <th colspan="2">Количество часов</th>
+          <th rowspan="2">Преподаватель</th>
+          <th rowspan="2">Действия</th>
+        </tr>
+        <tr>
+          <th>Лекции</th>
+          <th>Практики</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for index,data in days.items %}
+            <tr id="day_{{ index }}" style="background-color: #d8d8d8;">
+                    <td id="shhid_{{ index }}"  style="text-align: center;background-color: #d8d8d8;"><a href="#/" onclick="HiddenLessons({{ index }});"><i class="fa fa-minus-square fa-2x"></i></a></td>
+                    <td colspan="5" style="text-align: center;background-color: #d8d8d8;"><h5><b>{{ data.0 }}, {{ data.1 }}</b></h5></td>
+                    <td style="text-align: center;background-color: #d8d8d8;">
+                        <a href="#win_newlesson" onclick="NewDayLesson('{{ data.2 }}');"><i class="fa fa-plus fa-2x"></i></a>
+                    </td>
+                </tr>
+            {% for lesson in lessons %}
+                {% if lesson.lesson_time_start|date:"d.m.Y" == data.0 %}
+                    <tr id="lesson_{{ index }}_{{ lesson.id }}">
+                        <td>{{ lesson.lesson_time_start|date:"H:i"}}</td>
+                        <td>{{ lesson.lesson_time_finish|date:"H:i"}}</td>
+                        <td>{{ lesson.theme }}</td>
+                        <td>{{ lesson.lecture_hours }}</td>
+                        <td>{{ lesson.practice_hours }}</td>
+                        <td>{{ lesson.teacher.surname }} {{ lesson.teacher.name }} {{ lesson.teacher.patronymic }}</td>
+                        <td>
+                            <form method="POST" id="del_form_{{ lesson.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="delete_id" value="{{ lesson.id }}">
+                                <div class="inl">
+                                   <a href="javascript:;" onclick="if (confirm('Вы действительно хотите удалить занятие?')){document.getElementById('del_form_{{ lesson.id }}').submit();}">
+                                       <i class="fa fa-trash fa-2x"></i>
+                                   </a>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="#x" class="overlay" id="win_newlesson"></a>
+        <div class="popup" style="width: 70vw;">
+            <form method="POST">
+              {% csrf_token %}
+              <input type="hidden" id="GroupId" value="{{ group.id }}">
+              <input type="hidden" id="EventStart" value="{{ group.event.date_start|date:'Y-m-d' }}">
+              <input type="hidden" id="EventFinish" value="{{ group.event.date_finish|date:'Y-m-d' }}">
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                      <th colspan="2">Новое занятие <a href="#win_newlesson" id="refresh"><i class="fa fa-refresh"></i></a></th>
+                    </tr>
+                  </thead>
+                <tbody>
+                  <tr>
+                    <td style="width: 20vw;">
+                      Начало занятия:<br>
+                      ({{ group.event.date_start|date:"d.m.Y" }} - {{ group.event.date_finish|date:"d.m.Y" }})
+                    </td>
+                    <td>
+                      <input type="datetime-local" class="form-control" id="timestart"
+                             style="text-align: center;" name="lesson_time_start">
+                      <div class="err_timestart"></div>
+                    </td>
+                  </tr>
+                  <tr id="tr_timefinish" style="visibility: collapse;">
+                    <td>
+                      Окончание занятия:
+                    </td>
+                    <td>
+                      <input type="datetime-local" class="form-control" id="timefinish"
+                             style="text-align: center;" name="lesson_time_finish" readonly>
+                      <div class="err_timefinish"></div>
+                    </td>
+                  </tr>
+                  <tr id="tr_theme" style="visibility: collapse;">
+                    <td>
+                      Тема:
+                    </td>
+                    <td>
+                      <textarea id="TextareaTheme" class="form-control"
+                                name="theme"></textarea>
+                    </td>
+                  </tr>
+                  <tr id="tr_lecture" style="visibility: collapse;">
+                    <td>
+                      Лекционных часов:
+                    </td>
+                    <td>
+                      <input type="number" class="form-control" id="LectureHours"
+                             name="lecture_hours" style="text-align: center;" min="0" value="0" readonly>
+                    </td>
+                  </tr>
+                  <tr id="tr_practice" style="visibility: collapse;">
+                    <td>
+                      Часов практики:
+                    </td>
+                    <td>
+                      <input type="number" class="form-control" id="PracticeHours"
+                             name="practice_hours" style="text-align: center;" min="0" value="0" readonly>
+                    </td>
+                  </tr>
+                  <tr id="tr_noway" style="visibility: collapse;">
+                      <td colspan="2">
+                          <div class="noway"></div>
+                      </td>
+                  </tr>
+                  <tr id="tr_teacher" style="visibility: collapse;">
+                    <td>
+                      Преподаватель:
+                    </td>
+                    <td>
+                      <input type="text" id="TeachersList" list="teachers" Placeholder="Начните вводить имя..."
+                             name="teacher" class="form-control" readonly>
+                          <datalist id='teachers'>
+                              {% for key,value in teachers.items %}
+                                  <option value="{{value}} (ID:{{ key }})">
+                              {% endfor %}
+                          </datalist>
+                      <div class="err_teach"></div>
+                    </td>
+                  <tr id="tr_teacherinfo" style="visibility: collapse;">
+                    <td colspan="2">
+                      <div class="teacherinfo" style="text-align: center;"></div>
+                    </td>
+                  </tr>
+                  <tr id="tr_formbutton" style="visibility: collapse;">
+                    <td colspan="2">
+                      <button type="submit" id="butt" class=" btn btn-lg btn-primary"
+                              onclick="window.location.href='#close';" disabled>
+                        Добавить занятие
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </form>
+            <br><button type="button" class=" btn btn-lg btn-primary"
+                  onclick="window.location.href='#close';">
+                      Закрыть
+            </button><br>
+        </div></div>
+</main>
+<script type="text/javascript">
+    var group_id = {{ group.id }}
+</script>
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+             <div class="tn-box tn-box-color-2" style="background:#d40000">
+                <p>{{ message }}</p>
+               <div class="tn-progress"></div>
+             </div>
+        {% endif %}
+        {% if message.tags == 'success' %}
+             <div class="tn-box tn-box-color-2" style="background:#226440">
+                <p>{{ message }}</p>
+               <div class="tn-progress"></div>
+             </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endblock %}

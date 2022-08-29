@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static study_tags kug_tags lessons_tags %}
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<script src="{% static 'js/students_list.js' %}" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+    {% get_teachers as teachers %}
+    {% get_types as types %}
+    <div class="main-center">
+        <h2>Обучающиеся на
+            {% if group.course is None %}
+                мероприятии<br> "{{ group.event.name }}"
+            {% else %}
+                курсе<br> "{{ group.course.program.name }}"
+            {% endif %}
+        </h2><br>
+        <table class="table_crit">
+            <thead>
+                <tr>
+                    <th colspan="9">
+                        Количество обучающихся: {{ students.count }}<br>
+                        <a href="#win" onclick="FindWin();">
+                            <img src="{% static 'work/discover.png' %}" width="3%" height="3%">
+                        </a>
+                    </th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">ФИО, e-mail, Телефон</th>
+                    <th style="white-space: nowrap;">Дата подачи<br>заявки</th>
+                    <th>Статус заявки</th>
+                    <th>
+                        Проверка выбранной организации
+                        {% NoCheckOo as no_choo %}
+                        {% if no_choo is False %}
+                            <button type="button" class="btn btn-lg btn-primary"
+                                    onclick="CheckOos();window.location.href='#win';">
+                                Проверка
+                            </button>
+                        {% endif %}
+                    </th>
+                    {% if group.event is None %}
+                        <th>
+                            Проверка документа об образовании<br>
+                            {% if NoCheckDip is False %}
+                                <button type="button" class="btn btn-lg btn-primary"
+                                    onclick="CheckDiplomas();window.location.href='#win';">
+                                    Проверка
+                                </button>
+                            {% endif %}
+                        </th>
+                    {% endif %}
+                    <th>
+                        Проверка документа об оплате<br>
+                        {% if NoCheckPay is False %}
+                            <button type="button" class="btn btn-lg btn-primary"
+                                onclick="CheckPays();window.location.href='#win';">
+                                Проверка
+                            </button>
+                        {% endif %}
+                    </th>
+                    <th style="white-space: nowrap;">Опрос</th>
+                    {% if group.event is None %}
+                        <th>
+                            Скан удостоверения<br>
+                        </th>
+                    {% endif %}
+                    <th>Удалить из группы</th>
+                </tr>
+            </thead>
+           <tbody>
+                {% for student in students %}
+                    <tr>
+                        <td style="white-space: nowrap;">
+                            {{ student.surname }} {{ student.name }} {{ student.patronymic }}<br>
+                            {{ student.user.email }}<br>
+                            {{ student.phone }}
+                        </td>
+                        {% get_app student.id as app %}
+                        <td>{{ app.date_create|date:"d.m.Y" }}</td>
+                        <td width="20%;">
+                            {% if app.status.name == 'В работе' %}
+                                <b style="color: #bc2525">
+                            {% elif app.status.name == 'Ждем оплату' %}
+                                <b style="color: #951773">
+                            {% elif app.status.name == 'Оплачено' %}
+                                <b style="color: #92c928">
+                            {% elif app.status.name == 'На проверке' %}
+                                <b style="color: #1778ba">
+                            {% elif app.status.name == 'Проходит обучение' %}
+                                <b style="color: #22b840">
+                            {% else %}
+                                <b style="color: grey">
+                            {% endif %}
+                            {{ app.status.name }}</b>
+                        </td>
+                        <td>
+                           {% CheckChooseOo student.id as ch_oo %}
+                            {% if ch_oo is False %}
+                                <b style="color:red;">Нет</b>
+                            {% else %}
+                                <b style="color:green;">Да</b>
+                            {% endif %}
+                        </td>
+                        {% if group.event is None %}
+                            <td>
+                                {% if app.check_diploma_info is False %}
+                                    <b style="color: red;">Нет</b><br>
+                                {% else %}
+                                    <b style="color: green;">Да</b><br>
+                                {% endif %}
+                                {% get_study_doc_id app.id as study_doc %}
+                                <button type="submit" class="btn btn-lg btn-primary"
+                                        onclick="window.open('/doc_view/?doc_id={{ study_doc }}');">
+                                    Просмотр
+                                </button>
+                            </td>
+                        {% endif %}
+                        <td>
+                            {% if app.pay_doc is None %}
+                                <b style="color: grey">Документ не предоставлен</b>
+                            {% else %}
+                                {% if app.check_pay is False %}
+                                    <b style="color: red;">Нет</b><br>
+                                {% else %}
+                                    <b style="color: green;">Да</b><br>
+                                {% endif %}
+                                <button type="submit" class="btn btn-lg btn-primary"
+                                        onclick="window.open('/doc_view/?doc_id={{ app.pay_doc_id }}');">
+                                    Просмотр
+                                </button>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app.check_survey is False %}
+                                <b style="color: red;">Не пройден</b><br>
+                            {% else %}
+                                <b style="color: green;">Пройден</b><br>
+                            {% endif %}
+                        </td>
+                        {% if group.event is None %}
+                            <td>
+                                {% if app.certificate is None %}
+                                    <b style="color: red;">Не загружен</b><br>
+                                    <button type="submit" class="btn btn-lg btn-primary"
+                                            onclick="WinCert({{ student.id }});window.location.href='#win';">
+                                        Загрузить
+                                    </button>
+                                {% else %}
+                                    <b style="color: green;">Загружен</b><br>
+                                    {% get_certificate app.id as certificate %}
+                                    <button type="submit" class="btn btn-lg btn-primary"
+                                            onclick="window.open('/doc_view/?doc_id={{ certificate }}');">
+                                        Просмотр
+                                    </button>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                        <td>
+                            <form method="POST" id="del_student_{{ app.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="del_student" value="{{ app.id }}">
+                                <input type="hidden" name="id_group" value="{{ group.id }}">
+                                <div class="inl">
+                                   <a href="javascript:;"
+                                     onclick="if (confirm('Вы действительно хотите удалить обучающегося из группы?')){document.getElementById('del_student_{{ app.id }}').submit();}">
+                                       <i class="fa fa-trash fa-2x"></i>
+                                   </a>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+<a href="#x" class="overlay" id="win"></a>
+    <div class="popup" style="width: 70vw;"></div>
+<script type="text/javascript">
+    var id_group = {{ group.id }};
+</script>
+{% endblock %}

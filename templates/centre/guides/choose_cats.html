@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block js %}
+{% endblock %}
+{% block body %}
+{% load static %}
+    <table border="0" style="margin: 0 auto;">
+        <tr>
+            <td>
+               <button class=" btn btn-lg btn-primary"
+                    onclick="document.location.href = '{% url 'centre:poscatslist' %}'">
+                    Должности
+                </button>
+            </td>
+            <td>
+                <button class=" btn btn-lg btn-primary"
+                        onclick="document.location.href = '{% url 'centre:audcatslist' %}'">
+                    Слушатели
+                </button>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

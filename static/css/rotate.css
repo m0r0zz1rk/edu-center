@@ -1,0 +1,48 @@
+.form-registr {
+  display: none;
+  /*position: absolute;*/
+  margin: 10px auto;
+  width: 90%;
+  height: 90%;
+  max-width: 35%;
+  padding: 15px;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all .5s;
+}
+
+#DivSnils {
+  width:100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.authen{
+  opacity: 0;
+  animation: switch-cons forwards 3s;
+  transform: translateX(-100%);
+  transition: all .5s;
+}
+
+.start-anim {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+div[class*='err_'] {
+    visibility: visible;
+    color: red;
+}
+
+.container_pass {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+div[class*='RegistrShowHide'], div[class*='RegistrPass'] {
+    display: inline-block;
+    width: 85%;
+    height: 100%;
+}

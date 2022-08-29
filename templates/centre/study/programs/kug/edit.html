@@ -1,0 +1,656 @@
+{% extends 'authen/base_authen.html' %}
+{% load static kug_tags %}
+{% block body %}
+{% get_elements as elements %}
+<main class="m-auto" style="font-size: 12pt;">
+    <form action="{% url 'centre:kugeditfinish' %}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="dpp_id" value="{{ dpp.id }}">
+      <div style="width: 50%; margin: 0 auto;">
+       <button type="submit" class=" btn btn-lg btn-primary">
+        Вернуться к списку программ
+      </button>
+    </div>
+    </form>
+    <h1 class="h3 mb-3 fw-normal">Календарный учебный график программы<br>"{{ dpp.name }}"</h1><br>
+    <table class="table_crit">
+      <thead style="position: -webkit-sticky;
+  position: sticky;
+  top: -3px; // при нуле в chrome остаётся странный зазор
+  z-index: 2;">
+        <tr>
+          <th rowspan="2">
+            <table align="center">
+              <tr style="border: none;">
+                <td style="border: none;">
+                  Наименование раздела(темы)
+                </td>
+                <td style="border: none;">
+                  <a href="#win_newmodule"><i class="fa fa-plus fa-2x"></i></a>
+                </td>
+              </tr>
+            </table>
+          </th>
+          <th rowspan="2">Всего часов</th>
+          <th colspan="2">Виды учебных занятий, учебных работ</th>
+          <th rowspan="2">Стажировка, час</th>
+          <th rowspan="2">Самостоятельная работа, час</th>
+          <th rowspan="2">Формы контроля</th>
+          <th rowspan="2">Действие</th>
+        </tr>
+        <tr>
+          <th>Лекция, час</th>
+          <th>Интерактивное (практическое) занятие, час</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for el in elements %}
+            <tr>
+              {% if el.level == 0 %}
+                  <td style="background-color: #d8d8d8">
+
+                    <h5>{{ el.name }}</h5>
+                  </td>
+                  <td style="background-color: #d8d8d8; white-space: nowrap;">
+                    {% check_total el.id as ch_total %}
+                    <h5>{{ el.total_hours }}</h5>
+                    {% if ch_total is not None and ch_total != 'OK' %}
+                      <b style="color:red;">Осталось: {{ ch_total }}</b>
+                    {% endif %}
+                    {% if ch_total == 'OK' %}
+                      <b style="color:green;">ОК</b>
+                    {% endif %}
+                  </td>
+                  <td style="background-color: #d8d8d8; white-space: nowrap;">
+                    {% check_lecture el.id as ch_l %}
+                    <h5>{{ el.lecture_hours }}</h5>
+                    {% if ch_l is not None and ch_l != 'OK' %}
+                      <b style="color:red;">Осталось: {{ ch_l }}</b>
+                    {% endif %}
+                    {% if ch_l == 'OK' %}
+                      <b style="color:green;">ОК</b>
+                    {% endif %}
+                  </td>
+                  <td style="background-color: #d8d8d8; white-space: nowrap;">
+                    {% check_practice el.id as ch_p %}
+                    <h5>{{ el.practice_hours }}</h5>
+                    {% if ch_p is not None and ch_p != 'OK' %}
+                      <b style="color:red;">Осталось: {{ ch_p }}</b>
+                    {% endif %}
+                    {% if ch_p == 'OK' %}
+                      <b style="color:green;">ОК</b>
+                    {% endif %}
+                  </td>
+                  <td style="background-color: #d8d8d8; white-space: nowrap;">
+                    {% check_trainee el.id as ch_t %}
+                    <h5>{{ el.trainee_hours }}</h5>
+                    {% if ch_t is not None and ch_t != 'OK' %}
+                      <b style="color:red;">Осталось: {{ ch_t }}</b>
+                    {% endif %}
+                    {% if ch_t == 'OK' %}
+                      <b style="color:green;">ОК</b>
+                    {% endif %}
+                  </td>
+                  <td style="background-color: #d8d8d8; white-space: nowrap;">
+                    {% check_individual el.id as ch_i %}
+                    <h5>{{ el.individual_hours }}</h5>
+                    {% if ch_i is not None and ch_i != 'OK' %}
+                      <b style="color:red;">Осталось: {{ ch_i }}</b>
+                    {% endif %}
+                    {% if ch_i == 'OK' %}
+                      <b style="color:green;">ОК</b>
+                    {% endif %}
+                  </td>
+                  <td style="background-color: #d8d8d8">
+                    <h5>{{ el.control_form }}</h5>
+                  </td>
+                  <td style="background-color: #d8d8d8">
+                    <table>
+                      <tr style="border: none;">
+                        <td style="border: none">
+                          <a href="#win_newtheme_{{ el.id }}"><i class="fa fa-plus-square-o fa-2x"></i></a></h5>
+                          <a href="#x" class="overlay" id="win_newtheme_{{ el.id }}"></a>
+                            <div class="popup" style="width: 70vw;">
+                                <form action="{% url 'centre:kugaddtheme' %}" method="POST">
+                                  {% csrf_token %}
+                                  <table class="table_crit">
+                                    <thead>
+                                      <tr>
+                                        <th colspan="2">
+                                          Новая тема для раздела<br>"{{ el.name }}"
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <input type="hidden" name="dpp_id" value="{{ dpp.id }}">
+                                      <input type="hidden" name="module_id" value="{{ el.id }}">
+                                      <tr>
+                                        <td>
+                                          Наименование
+                                        </td>
+                                        <td>
+                                          <textarea class="form-control" name="name" required></textarea>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Общее количество часов<br>
+                                          {% if ch_total == 'OK' %}
+                                              (Нет свободных часов)
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="total_hours" style="text-align: center;"
+                                                     value="0" required readonly>
+                                            </td>
+                                          {% elif ch_total is None %}
+                                              (Осталось: {{ el.total_hours }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="total_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% else %}
+                                              (Осталось: {{ ch_total }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="total_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% endif %}
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Количество лекционных часов<br>
+                                          {% if ch_l == 'OK' %}
+                                              (Нет свободных часов)
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="lecture_hours" style="text-align: center;"
+                                                     value="0" required readonly>
+                                            </td>
+                                          {% elif ch_l is None %}
+                                              (Осталось: {{ el.lecture_hours }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="lecture_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% else %}
+                                              (Осталось: {{ ch_l }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="lecture_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% endif %}
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Количество часов практики<br>
+                                          {% if ch_p == 'OK' %}
+                                              (Нет свободных часов)
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="practice_hours" style="text-align: center;"
+                                                     value="0" required readonly>
+                                            </td>
+                                          {% elif ch_p is None %}
+                                              (Осталось: {{ el.practice_hours }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="practice_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% else %}
+                                              (Осталось: {{ ch_p }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="practice_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% endif %}
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Количество часов стажировок<br>
+                                          {% if ch_t == 'OK' %}
+                                              (Нет свободных часов)
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="trainee_hours" style="text-align: center;"
+                                                     value="0" required readonly>
+                                            </td>
+                                          {% elif ch_t is None %}
+                                              (Осталось: {{ el.trainee_hours }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="trainee_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% else %}
+                                              (Осталось: {{ ch_t }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="trainee_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% endif %}
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Количество часов самостоятельной работы<br>
+                                          {% if ch_i == 'OK' %}
+                                              (Нет свободных часов)
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="individual_hours" style="text-align: center;"
+                                                     value="0" required readonly>
+                                            </td>
+                                          {% elif ch_i is None %}
+                                              (Осталось: {{ el.individual_hours }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="individual_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% else %}
+                                              (Осталось: {{ ch_i }})
+                                            </td>
+                                            <td>
+                                              <input type="number" class="form-control" name="individual_hours" style="text-align: center;" required>
+                                            </td>
+                                          {% endif %}
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Форма контроля
+                                        </td>
+                                        <td>
+                                          <input type="text" class="form-control" name="control_form" style="text-align: center;">
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td colspan="2">
+                                          <button type="submit" class=" btn btn-lg btn-primary">
+                                            Добавить тему
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </form>
+                                <br><button type="button" class=" btn btn-lg btn-primary"
+                                      onclick="window.location.href='#close';">
+                                          Закрыть
+                                </button><br>
+                            </div>
+                        </td>
+                        <td style="border: none;">
+                          <a href="#win_edit_{{ el.id }}"><i class="fa fa-pencil-square-o fa-2x"></i></a></h5>
+                          <a href="#x" class="overlay" id="win_edit_{{ el.id }}"></a>
+                            <div class="popup" style="width: 70vw;">
+                                <form action="{% url 'centre:kugchangemodule' %}" method="POST">
+                                  {% csrf_token %}
+                                  <table class="table_crit">
+                                    <thead>
+                                      <tr>
+                                        <th colspan="2">
+                                          Редактирование раздела<br>"{{ el.name }}"
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <input type="hidden" name="dpp_id" value="{{ dpp.id }}">
+                                      <input type="hidden" name="module_id" value="{{ el.id }}">
+                                      <tr>
+                                        <td>
+                                          Номер раздела
+                                        </td>
+                                        <td>
+                                          {% get_number_module el.name as number  %}
+                                          <input type="text" class="form-control" style="text-align:center;"
+                                                 value="{{ number.0 }}" disabled>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Наименование
+                                        </td>
+                                        <td>
+                                          <textarea class="form-control" name="name" required>{{ number.1 }}</textarea>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Общее количество часов
+                                        </td>
+                                        <td>
+                                          <input type="number" class="form-control" name="total_hours"
+                                                 value="{{ el.total_hours }}" style="text-align: center;" required>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Количество лекционных часов
+                                        </td>
+                                        <td>
+                                          <input type="number" class="form-control" name="lecture_hours"
+                                                 value="{{ el.lecture_hours }}" style="text-align: center;" required>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Количество часов практики
+                                        </td>
+                                        <td>
+                                          <input type="number" class="form-control" name="practice_hours"
+                                                 value="{{ el.practice_hours }}" style="text-align: center;" required>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Количество часов стажировок
+                                        </td>
+                                        <td>
+                                          <input type="number" class="form-control" name="trainee_hours"
+                                                 value="{{ el.trainee_hours }}" style="text-align: center;" required>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Количество часов самостоятельной работы
+                                        </td>
+                                        <td>
+                                          <input type="number" class="form-control" name="individual_hours"
+                                                 value="{{ el.individual_hours }}" style="text-align: center;" required>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td>
+                                          Форма контроля
+                                        </td>
+                                        <td>
+                                          <input type="text" class="form-control" name="control_form"
+                                                 value="{{ el.control_form }}" style="text-align: center;">
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td colspan="2">
+                                          <button type="submit" class=" btn btn-lg btn-primary">
+                                            Изменить информацию раздела
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </form>
+                                <br><button type="button" class=" btn btn-lg btn-primary"
+                                      onclick="window.location.href='#close';">
+                                          Закрыть
+                                </button><br>
+                            </div>
+                        </td>
+                        <td style="border: none;">
+                          <form action="{% url 'centre:kugdelelement' %}" method="POST" id="form_del_{{ el.id }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ el.id }}">
+                            <input type="hidden" name="dpp_id" value="{{ dpp.id }}">
+                            <a href="javascript:;"
+                               onclick="if (confirm('Вы действительно хотите удалить раздел?')){document.getElementById('form_del_{{ el.id }}').submit();}">
+                              <i class="fa fa-trash fa-2x"></i>
+                            </a>
+                          </form>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                {% get_children el.id as children %}
+                {% if children|length != 0 %}
+                  {% for child in children %}
+                    <tr>
+                      <td style="background-color: #f3f3f3">
+                        {{ child.name }}
+                      </td>
+                      <td style="background-color: #f3f3f3">
+                        {{ child.total_hours }}
+                      </td>
+                      <td style="background-color: #f3f3f3">
+                        {{ child.lecture_hours }}
+                      </td>
+                      <td style="background-color: #f3f3f3">
+                        {{ child.practice_hours }}
+                      </td>
+                      <td style="background-color: #f3f3f3">
+                        {{ child.trainee_hours }}
+                      </td>
+                      <td style="background-color: #f3f3f3">
+                        {{ child.individual_hours }}
+                      </td>
+                      <td style="background-color: #f3f3f3">
+                        {{ child.control_form }}
+                      </td>
+                      <td style="background-color: #f3f3f3">
+                        <table align="center">
+                          <tr style="border: none;">
+                            <td style="border: none;">
+                              <a href="#win_edittheme_{{ child.id }}"><i class="fa fa-pencil-square-o fa-2x"></i></a></h5>
+                                <a href="#x" class="overlay" id="win_edittheme_{{ child.id }}"></a>
+                                  <div class="popup" style="width: 70vw;">
+                                      <form action="{% url 'centre:kugchangetheme' %}" method="POST">
+                                        {% csrf_token %}
+                                        <table class="table_crit">
+                                          <thead>
+                                            <tr>
+                                              <th colspan="2">
+                                                Редактирование темы<br>"{{ child.name }}"
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <input type="hidden" name="dpp_id" value="{{ dpp.id }}">
+                                            <input type="hidden" name="theme_id" value="{{ child.id }}">
+                                            <tr>
+                                              <td>
+                                                Номер темы
+                                              </td>
+                                              <td>
+                                                {% get_number_theme child.name as number  %}
+                                                <input type="text" class="form-control" style="text-align:center;"
+                                                       value="{{ number.0 }}" disabled>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td>
+                                                Наименование
+                                              </td>
+                                              <td>
+                                                <textarea class="form-control" name="name" required>{{ number.1 }}</textarea>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td>
+                                                Общее количество часов
+                                              </td>
+                                              <td>
+                                                <input type="number" class="form-control" name="total_hours"
+                                                       value="{{ child.total_hours }}" style="text-align: center;" required>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td>
+                                                Количество лекционных часов
+                                              </td>
+                                              <td>
+                                                <input type="number" class="form-control" name="lecture_hours"
+                                                       value="{{ child.lecture_hours }}" style="text-align: center;" required>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td>
+                                                Количество часов практики
+                                              </td>
+                                              <td>
+                                                <input type="number" class="form-control" name="practice_hours"
+                                                       value="{{ child.practice_hours }}" style="text-align: center;" required>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td>
+                                                Количество часов стажировок
+                                              </td>
+                                              <td>
+                                                <input type="number" class="form-control" name="trainee_hours"
+                                                       value="{{ child.trainee_hours }}" style="text-align: center;" required>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td>
+                                                Количество часов самостоятельной работы
+                                              </td>
+                                              <td>
+                                                <input type="number" class="form-control" name="individual_hours"
+                                                       value="{{ child.individual_hours }}" style="text-align: center;" required>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td>
+                                                Форма контроля
+                                              </td>
+                                              <td>
+                                                <input type="text" class="form-control" name="control_form"
+                                                       value="{{ child.control_form }}" style="text-align: center;">
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td colspan="2">
+                                                <button type="submit" class=" btn btn-lg btn-primary">
+                                                  Изменить информацию темы
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </form>
+                                      <button type="button" class=" btn btn-lg btn-primary"
+                                            onclick="window.location.href='#close';">
+                                                Закрыть
+                                      </button><br>
+                                  </div>
+                            </td>
+                            <td style="border: none;">
+                                <form action="{% url 'centre:kugdelelement' %}" method="POST" id="form_del_{{ child.id }}">
+                                  {% csrf_token %}
+                                  <input type="hidden" name="id" value="{{ child.id }}">
+                                  <input type="hidden" name="dpp_id" value="{{ dpp.id }}">
+                                  <a href="javascript:;"
+                                     onclick="if (confirm('Вы действительно хотите удалить тему?')){document.getElementById('form_del_{{ child.id }}').submit();}">
+                                    <i class="fa fa-trash fa-2x"></i>
+                                  </a>
+                                </form>
+                            </td>
+                          </tr>
+                        </table>
+
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="#x" class="overlay" id="win_newmodule"></a>
+        <div class="popup" style="width: 70vw;">
+            <form action="{% url 'centre:kugaddmodule' %}" method="POST">
+              {% csrf_token %}
+              <table class="table_crit">
+                <thead>
+                  <tr>
+                    <th colspan="2">
+                      Новый раздел
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <input type="hidden" name="dpp_id" value="{{ dpp.id }}">
+                  <tr>
+                    <td>
+                      Наименование
+                    </td>
+                    <td>
+                      <textarea class="form-control" name="name" required></textarea>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Общее количество часов
+                    </td>
+                    <td>
+                      <input type="number" class="form-control" name="total_hours" style="text-align: center;" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Количество лекционных часов
+                    </td>
+                    <td>
+                      <input type="number" class="form-control" name="lecture_hours" style="text-align: center;" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Количество часов практики
+                    </td>
+                    <td>
+                      <input type="number" class="form-control" name="practice_hours" style="text-align: center;" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Количество часов стажировок
+                    </td>
+                    <td>
+                      <input type="number" class="form-control" name="trainee_hours" style="text-align: center;" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Количество часов самостоятельной работы
+                    </td>
+                    <td>
+                      <input type="number" class="form-control" name="individual_hours" style="text-align: center;" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Форма контроля
+                    </td>
+                    <td>
+                      <input type="text" class="form-control" name="control_form" style="text-align: center;">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">
+                      <button type="submit" class=" btn btn-lg btn-primary">
+                        Добавить раздел
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </form>
+            <br><button type="button" class=" btn btn-lg btn-primary"
+                  onclick="window.location.href='#close';">
+                      Закрыть
+            </button><br>
+        </div>
+</main>
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+             <div class="tn-box tn-box-color-2" style="background:#d40000">
+                <p>{{ message }}</p>
+               <div class="tn-progress"></div>
+             </div>
+        {% endif %}
+        {% if message.tags == 'success' %}
+             <div class="tn-box tn-box-color-2" style="background:#226440">
+                <p>{{ message }}</p>
+               <div class="tn-progress"></div>
+             </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load static registr_tags profile_tags %}
+{% block js %}
+<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/ajax.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/profile.js' %}" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="{% static 'js/jquery.maskedinput.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/jquery.maskedinput.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/jquery-3.2.1.min.js' %}" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.maskedinput@1.4.1/src/jquery.maskedinput.min.js" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+{% get_states as states %}
+{% get_docstypes as types %}
+{% get_docs as docs %}
+    <div class="tables_container">
+       <table class="table_crit">
+            <thead>
+                <tr>
+                    {% if request.user.is_staff is False and request.user.is_superuser is False %}
+                        <th>
+                            <button class="btn btn-lg btn-primary" onclick="window.location.href='#win_docs';">
+                                Управление загруженными документами
+                            </button>
+                        </th>
+                        <th>
+                           <button class="btn btn-lg btn-primary" onclick="window.location.href='#win_pass';">
+                               Сменить пароль
+                           </button>
+                        </th>
+                    {% endif %}
+                </tr>
+            </thead>
+        </table>
+        <br>
+        <table class="table_crit">
+            <thead>
+                <tr>
+                    <th colspan="2">Личные данные</th>
+                </tr>
+            </thead>
+            <tbody>
+                <form action="{% url 'authen:change_prof' %}" method="POST">
+                    {% csrf_token %}
+                    <tr>
+                        <td>Государство</td>
+                        <td>
+                              <select class="form-control text-cent" id="SelectState" name="state" required>
+                                 {% for el in states %}
+                                    {% if el.name == profile.state.name %}
+                                        <option value="{{ el.id }}" selected>{{ el.name }}</option>
+                                    {% else %}
+                                        <option value="{{ el.id }}">{{ el.name }}</option>
+                                    {% endif %}
+                                 {% endfor %}
+                              </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            СНИЛС:
+                        </td>
+                        <td>
+                            {% if profile.state.name != 'Россия' %}
+                                <input type="text" class="form-control text-cent" id="InputSnils"
+                                       name="snils" disabled>
+                            {% else %}
+                                <input type="text" class="form-control text-cent" id="InputSnils"
+                                       name="snils" value="{{ profile.snils }}"required>
+                            {% endif %}
+                            <div class="err_snils"></div>
+                        </td>
+                    <tr>
+                        <td>Адрес электронной почты</td>
+                        <td>
+                             <input type="email" class="form-control text-cent" id="InputEmail"
+                                    name="email" value="{{ profile.user.email }}" required>
+                             <div class="err_email"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Номер телефона:</td>
+                        <td>
+                             <input type="text" class="form-control text-cent" id="InputPhone"
+                                    name="phone" value="{{ profile.phone }}" required>
+                             <div class="err_phone"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Фамилия:</td>
+                        <td>
+                             <input type="text" class="form-control text-cent" id="InputSurname"
+                                    name="surname" value="{{ profile.surname }}" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Имя:</td>
+                        <td>
+                             <input type="text" class="form-control text-cent" id="InputName"
+                                    name="name" value="{{ profile.name }}" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Отчество:</td>
+                        <td>
+                             <input type="text" class="form-control text-cent" id="InputPatronymic"
+                                    name="patronymic" value="{{ profile.patronymic }}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Пол:</td>
+                        <td>
+                             <select class="form-control text-cent" id="SelectSex" name="sex" required>
+                                {% if profile.sex is True %}
+                                  <option value="True" selected>Мужской</option>
+                                  <option value="False">Женский</option>
+                                {% else %}
+                                    <option value="True">Мужской</option>
+                                    <option value="False" selected>Женский</option>
+                                {% endif %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Дата рождения:
+                        </td>
+                        <td>
+                            <input type="date" class="form-control text-cent" id="InputBirthday"
+                                   name="birthday" value="{{ profile.birthday|date:'Y-m-d' }}" required>
+                            <div class="err_birthdate"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Имею ограничения по здоровью:</td>
+                        <td>
+                             <select class="form-control text-cent" name="health" required>
+                                {% if profile.health is True %}
+                                  <option value="True" selected>Да</option>
+                                  <option value="False">Нет</option>
+                                {% else %}
+                                    <option value="True">Да</option>
+                                    <option value="False" selected>Нет</option>
+                                {% endif %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div>
+                            <button type="submit" class="btn btn-lg btn-primary"
+                                    onclick="return confirm('Вы действительно хотите изменить свои данные?')">
+                                Изменить данные
+                            </button>
+                        </div>
+                        </td>
+                    </tr>
+                </form>
+            </tbody>
+        </table>
+        <a href="#x" class="overlay" id="win_docs"></a>
+        <div class="popup_add">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="4">
+                            <div class="inl">
+                                <button type="button"
+                                     class=" btn btn-lg btn-primary"
+                                     onclick="window.location.href='#win_new';">Внести новый документ</button>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Имя файла</th>
+                        <th>Тип документа</th>
+                        <th>Дата загрузки</th>
+                        <th>Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for doc in docs %}
+                        <tr>
+                            <td>
+                                <form action="{% url 'authen:doc_view' %}" id="show_doc_{{ doc.id }}" method="GET" target="_blank">
+                                    <input type="hidden" value="{{ doc.id }}" name="doc_id">
+                                    <a href="javascript:{}" onclick="document.getElementById('show_doc_{{ doc.id }}').submit();">
+                                        {{ doc.filename }}
+                                    </a>
+                                </form>
+                            </td>
+                            <td>
+                                {{ doc.doc_type.name }}
+                            </td>
+                            <td>
+                                {{ doc.upload_date|date:"d.m.Y" }}
+                            </td>
+                            <td>
+                                {% if doc.doc_type.name != 'Скан удостоверения' %}
+                                    <form action="{% url 'authen:delete_doc' %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" value="{{ doc.id }}" name="doc_id">
+                                        <button type="submit" class=" btn btn-lg btn-primary"
+                                                onclick="return confirm('Вы действительно хотите удалить документ?')">
+                                            Удалить
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <button type="button" class=" btn btn-lg btn-primary" disabled>
+                                        Удалить
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+              </table>
+              <table border="0">
+                  <tr>
+                      <td>
+                          <button type="button" class=" btn btn-lg btn-primary" id="closepersonal" onclick="window.location.href='#close';">
+                              Закрыть
+                          </button><br>
+                      </td>
+                  </tr>
+              </table>
+          </center>
+        </div>
+        <a href="#x" class="overlay up" id="win_new"></a>
+        <div class="popup">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="2">Загрузка нового документа</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <form action="{% url 'authen:upload_doc' %}" id="download_form" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <tr>
+                            <td>Выберите тип файла:</td>
+                            <td>
+                                <select class="form-control" name="type_doc" style="text-align: center;" required>
+                                    {% for type in types %}
+                                        <option value="{{ type.id }}">{{ type.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Выберите файл:<br>(Размер файла не должен превышать 10 мб,<br>
+                                Допустимые форматы - jpg, png, pdf)
+                            </td>
+                            <td>
+                                <input type="file" class="form-control" name="new_doc" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div style="width: 50%; margin: 0 auto;">
+                                    <button type="submit" class=" btn btn-lg btn-primary" id="load_doc">
+                                        Загрузить документ
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </form>
+                  </tbody>
+              </table>
+              <img src="{% static 'work/load_full.gif' %}" id="gif_load">
+              <table border="0">
+                  <tr>
+                      <td>
+                          <button type="button" class=" btn btn-lg btn-primary" onclick="window.location.href='#win_docs';">
+                              Закрыть
+                          </button><br>
+                      </td>
+                  </tr>
+              </table>
+          </center>
+        </div>
+        <a href="#x" class="overlay" id="win_pass"></a>
+        <div class="popup">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="2">Изменение пароля</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <form action="{% url 'authen:change_pass' %}" method="POST">
+                        {% csrf_token %}
+                        <tr>
+                            <td>Пароль:</td>
+                            <td>
+                                <div class="container_pass">
+                                  <input type="password" class="form-control" id="Pass" name="pass"
+                                         placeholder="Пароль" required>
+                                  <div id="ShowHide1">
+                                      <a href=""><img src="{% static 'work/showpass.png' %}"></a>
+                                  </div>
+                                </div>
+                                <div class="err_pass"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Подтверждение пароля:
+                            </td>
+                            <td>
+                                <div class="container_pass">
+                                  <input type="password" class="form-control" id="PassConfirm" name="pass_confirm"
+                                         placeholder="Подтверждение пароля" required>
+                                  <div id="ShowHide2">
+                                      <a href=""><img src="{% static 'work/showpass.png' %}"></a>
+                                  </div>
+                                </div>
+                                <div class="err_confirmpass"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div style="width: 50%; margin: 0 auto;">
+                                    <button type="submit" class=" btn btn-lg btn-primary"
+                                        onclick="return confirm('Вы действительно хотите изменить пароль?')">
+                                        Изменить пароль
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </form>
+                  </tbody>
+              </table>
+              <table border="0">
+                  <tr>
+                      <td>
+                          <button type="button" class=" btn btn-lg btn-primary" onclick="window.location.href='#close';">
+                              Закрыть
+                          </button><br>
+                      </td>
+                  </tr>
+              </table>
+          </center>
+        </div>
+    </div>
+{% endblock %}

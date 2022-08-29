@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static registr_tags %}
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.maskedinput@1.4.1/src/jquery.maskedinput.min.js" type="text/javascript"></script>
+<script src="{% static 'js/auth_registr.js' %}" type="text/javascript"></script>
+{% endblock js %}
+{% block body %}
+    {% get_states as states %}
+    <div class="main-center">
+        <h2>Справочник пользователей</h2><br>
+        <table class="table_crit">
+            <thead>
+                <tr>
+                    <th colspan="10">
+                        Количество пользователей, зарегистрированных в АИС: {{ users.count }}
+                        {% if find != 'yes' and users|length > 75 %}
+                             (отображены последние 75 пользователей)
+                        {% endif %}<br>
+                        <a href="#win_find"><img src="{% static 'work/discover.png' %}" width="3%" height="3%"></a>
+                    </th>
+                </tr>
+                <tr>
+                    <th>Дата регистрации</th>
+                    <th>Государство<a href="#win_statefilter"><img src="{% static 'work/filter.png' %}" width="15px" height="15px"></a></th>
+                    <th>ФИО</th>
+                    <th>Дата рождения, Пол, Огр. по здоровью</th>
+                    <th>Email</th>
+                    <th>Телефон</th>
+                    <th>СНИЛС</th>
+                    <th>Преподаватель<a href="#win_teachfilter"><img src="{% static 'work/filter.png' %}" width="15px%" height="15px%"></a></th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users|slice:75 %}
+                    <tr>
+                        <td>{{ user.date_reg|date:"d.m.Y" }}</td>
+                        <td>{{ user.state.name }}</td>
+                        <td>{{ user.surname }} {{ user.name }} {{ user.patronymic }}</td>
+                        <td>{{ user.birthday|date:"d.m.Y" }}
+                            <br>
+                            {% if user.sex is True %}
+                                Мужской
+                            {% else %}
+                                Женский
+                            {% endif %}
+                            <br>
+                            {% if user.health is True %}
+                                Да
+                            {% else %}
+                                Нет
+                            {% endif %}
+                        </td>
+                        <td>{{ user.user.email }}</td>
+                        <td style="white-space: nowrap;">{{ user.phone }}</td>
+                        <td style="white-space: nowrap;">{{ user.snils }}</td>
+                        <td>
+                            {% if user.teacher is True %}
+                                Да
+                            {% else %}
+                                Нет
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="#win_menu_{{ user.id }}"><img src="{% static 'work/menu.png' %}" width="50px" height="50px"></a>
+                            <a href="#x" class="overlay" id="win_menu_{{ user.id }}"></a>
+                                <div class="popup">
+                                    {% if user.teacher is True %}
+                                        <button class=" btn btn-lg btn-primary"
+                                                onclick="window.location.href='{% url 'centre:personalsch' teach=user.id %}'">
+                                            Показать личное расписание
+                                        </button>
+                                    <br><br>
+                                    {% endif %}
+                                    <form action="{% url 'centre:userchangestatus' %}" method="POST" id="form_stud_{{ user.id }}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        {% if user.teacher is True %}
+                                            <button type="button" class=" btn btn-lg btn-primary"
+                                                onclick="if (confirm('Вы действительно хотите убрать пользователя из преподавателей?')){document.getElementById('form_stud_{{ user.id }}').submit();}">
+                                            Убрать из преподавателей
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class=" btn btn-lg btn-primary"
+                                                onclick="if (confirm('Вы действительно хотите сделать пользователя преподавателем?')){document.getElementById('form_stud_{{ user.id }}').submit();}">
+                                            Сделать преподавателем
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                    <br>
+                                    <button type="button" class=" btn btn-lg btn-primary"
+                                        onclick="window.location.href='{% url 'centre:userdetail' user.id %}'">
+                                        Изменить личные данные
+                                    </button>
+                                    <br>
+                                    <form action="{% url 'centre:delete_user' %}" method="POST" id="del_form_{{ user.id }}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="id" value="{{ user.id }}">
+                                        <br><button type="button" class=" btn btn-lg btn-primary"
+                                                    onclick="if (confirm('Вы действительно хотите удалить пользователя?')){document.getElementById('del_form_{{ user.id }}').submit();}">
+                                            Удалить пользователя
+                                        </button>
+                                    </form>
+                                    <br><button type="button" class=" btn btn-lg btn-primary"
+                                          onclick="window.location.href='#close';">
+                                              Закрыть
+                                    </button><br>
+                                </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <form method="GET">
+    {% csrf_token %}
+    <a href="#x" class="overlay" id="win_statefilter"></a>
+        <div class="popup">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="3">
+                            Фильтрация по государствам
+                        </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                    {% for state in states %}
+                        <td>
+                            <div style="text-align:left">
+                                    <input type="checkbox" name="check_states[]" value="{{ state.id }}"> {{ state.name }}
+                            </div>
+                        </td>
+                        {% if forloop.counter|divisibleby:3 %}
+                            </tr><tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <button type="submit" class=" btn btn-lg btn-primary"
+                                onclick="document.location.href ='#'">
+                                Применить фильтр
+                            </button>
+                        </td>
+                    </tr>
+                  </tbody>
+              </table>
+              <table border="0">
+                  <tr>
+                      <td>
+                          <button type="button" class=" btn btn-lg btn-primary"
+                                  onclick="window.location.href='#close';">
+                              Закрыть
+                          </button><br>
+                      </td>
+                  </tr>
+              </table>
+          </center>
+        </div>
+    <a href="#x" class="overlay" id="win_teachfilter"></a>
+        <div class="popup">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="2">
+                            Фильтрация по типу пользователя
+                        </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                        <tr>
+                            <td>
+                                Выбери тип:
+                            </td>
+                            <td>
+                                <select class="form-control" name="select" style="text-align: center;">
+                                    <option>Все</option>
+                                    <option>Преподаватели</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div style="width: 50%; margin: 0 auto;">
+                                    <button type="submit" class=" btn btn-lg btn-primary"
+                                        onclick="document.location.href ='#'">
+                                        Применить фильтр
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                  </tbody>
+              </table>
+              <table border="0">
+                  <tr>
+                      <td>
+                          <button type="button" class=" btn btn-lg btn-primary"
+                                  onclick="window.location.href='#close';">
+                              Закрыть
+                          </button><br>
+                      </td>
+                  </tr>
+              </table>
+          </center>
+        </div>
+    <a href="#x" class="overlay" id="win_find"></a>
+        <div class="popup">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="2">
+                            Поиск по пользователям
+                        </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                        <tr>
+                            <td>
+                                Фамилия:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="find_surname">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Имя:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="find_name">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Отчество:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="find_patronymic">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Email:
+                            </td>
+                            <td>
+                                <input type="email" class="form-control" name="find_email">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Телефон:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" id="InputPhone" name="find_phone">
+                                <div class="err_phone"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                СНИЛС:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" id="InputSnils" name="find_snils">
+                                <div class="err_snils"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div style="width: 50%; margin: 0 auto;">
+                                    <button type="submit" class=" btn btn-lg btn-primary"
+                                        onclick="document.location.href ='#'">
+                                        Применить фильтр
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                  </tbody>
+              </table>
+              <table border="0">
+                  <tr>
+                      <td>
+                          <button type="button" class=" btn btn-lg btn-primary"
+                                  onclick="window.location.href='#close';">
+                              Закрыть
+                          </button><br>
+                      </td>
+                  </tr>
+              </table>
+          </center>
+        </div>
+    </form>
+{% endblock %}

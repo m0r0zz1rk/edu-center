@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static guides_tags profile_tags %}
+{% block js %}
+{% endblock %}
+{% block body %}
+    <div class="main-center">
+        <h2>Справочник типов мероприятий</h2><br>
+        <table class="table_crit">
+            <thead>
+                <tr>
+                    <th colspan="6">
+                        Количество найденных типов мероприятий: {{ types.count }}<br>
+                        <a href="#win_type_new"><i class="fa fa-plus fa-2x"></i></a>
+                    </th>
+                </tr>
+                <tr>
+                    <th>Название категории</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for type in types %}
+                    <tr>
+                        <td>{{ type.name }}</td>
+                        <td>
+                            <form method="POST" id="del_form_{{ type.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="delete_type" value="{{ type.id }}">
+                                <div class="inl">
+                                   <a href="javascript:;"
+                                     onclick="if (confirm('Вы действительно хотите удалить этот тип?')){document.getElementById('del_form_{{ type.id }}').submit();}">
+                                       <i class="fa fa-trash fa-2x"></i>
+                                   </a>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="#x" class="overlay" id="win_type_new"></a>
+        <div class="popup">
+          <center>
+              <table class="table_crit">
+                  <thead>
+                    <tr>
+                        <th colspan="2">
+                            Новый тип мероприятия
+                        </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <tr>
+                            <td>
+                                Название:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" style="text-align: center;" name="create_type" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div style="width: 50%; margin: 0 auto;">
+                                    <button type="submit" class="btn btn-lg btn-primary"
+                                        onclick="document.location.href ='#'">
+                                        Добавить
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </form>
+                  </tbody>
+              </table>
+              <div style="width: 40%; margin: 0 auto;">
+                  <button type="button" class="btn btn-lg btn-primary"
+                          onclick="window.location.href='#close';">
+                      Закрыть
+                  </button><br>
+              </div>
+          </center>
+        </div>
+{% endblock %}

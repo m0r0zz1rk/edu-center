@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static kug_tags %}
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<script src="{% static 'js/course.js' %}" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+    {% get_deps as deps %}
+    <div class="main-center">
+        <h2>Расписания групп подразделения</h2><h4>"{{ dep_name }}"</h4>
+        <table class="table_crit">
+            <thead>
+                <tr>
+                    <th colspan="8">
+                        Количество найденных групп: {{ groups.count }}<br>
+                        <a href="#win_find">
+                            <img src="{% static 'work/discover.png' %}" width="3%" height="3%">
+                        </a>
+                    </th>
+                </tr>
+                <tr>
+                    <th rowspan="2">Шифр</th>
+                    <th rowspan="2">Наименование услуги (Тип)</th>
+                    <th rowspan="2">Объем (часов)</th>
+                    <th rowspan="2">Дата начала обучения</th>
+                    <th rowspan="2">Дата окончания обучения</th>
+                    <th colspan="2">Расписание</th>
+                </tr>
+                <tr>
+                    <th>Скачать</th>
+                    <th>Просмотр</th>
+                </tr>
+            </thead>
+           <tbody>
+                {% for group in groups|slice:50 %}
+                    <tr>
+                        <td style="white-space: nowrap;">{{ group.code }}</td>
+                        {% if group.course_id is None %}
+                            <td>{{ group.event.name }}<br>({{ group.event.type }})</td>
+                            <td>{{ group.event.duration }}</td>
+                            <td>{{ group.event.date_start|date:"d.m.Y" }}</td>
+                            <td>{{ group.event.date_finish|date:"d.m.Y" }}</td>
+                        {% else %}
+                            <td>{{ group.course.program.name }}<br>(Курс)</td>
+                            <td>{{ group.course.program.duration }}</td>
+                            <td>{{ group.course.date_start|date:"d.m.Y" }}</td>
+                            <td>{{ group.course.date_finish|date:"d.m.Y" }}</td>
+                        {% endif %}
+                            <td>
+                                <form method="POST" id="download_{{ group.id }}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="group_id" value="{{ group.id }}">
+                                    <a href="javascript:;" onclick="document.getElementById('download_{{ group.id }}').submit();">
+                                        <i class="fa fa-download fa-2x" aria-hidden="true"></i>
+                                    </a>
+                                </form>
+                            </td>
+                            <td>
+                                {% if group.event is None %}
+                                    <button class="btn btn-lg btn-primary"
+                                        onclick="window.location.href='{% url 'dep:courselessons' group=group.id %}'">
+                                        Просмотр
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-lg btn-primary"
+                                        onclick="window.location.href='{% url 'dep:eventlessons' group=group.id %}'">
+                                        Просмотр
+                                    </button>
+                                {% endif %}
+                            </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <form method="GET">
+        <a href="#x" class="overlay" id="win_find"></a>
+            <div class="popup">
+              <center>
+                  <table class="table_crit">
+                      <thead>
+                        <tr>
+                            <th colspan="2">
+                                Поиск по учебным группам
+                            </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                            {% csrf_token %}
+                            <tr>
+                                <td>
+                                    Шифр группы:
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="code">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Наименование услуги:
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="name">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Дата обучения
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control" name="study_date">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div style="width: 50%; margin: 0 auto;">
+                                        <button type="submit" class=" btn btn-lg btn-primary"
+                                            onclick="document.location.href ='#'">
+                                            Поиск
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                      </tbody>
+                  </table>
+                  <table border="0">
+                      <tr>
+                          <td>
+                              <button type="button" class=" btn btn-lg btn-primary"
+                                      onclick="window.location.href='#close';">
+                                  Закрыть
+                              </button><br>
+                          </td>
+                      </tr>
+                  </table>
+              </center>
+            </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% load interface_tags %}
+{% get_group as group %}
+{% check_teacher as teacher %}
+<ul>
+    <li>
+        <a href="{% url 'authen:main' %}">
+            <i class="fa fa-home fa-2x"></i>
+            <span class="nav-text">
+                Главная
+            </span>
+        </a>
+    </li>
+    {% if group == 'Обучающиеся' %}
+        <li class="has-subnav">
+            <a href="{% url 'students:eventslist' %}">
+               <i class="fa fa-users fa-2x"></i>
+                <span class="nav-text">
+                    Мероприятия
+                </span>
+            </a>
+        </li>
+        <li class="has-subnav">
+            <a href="{% url 'students:courseslist' %}">
+                <i class="fa fa-graduation-cap fa-2x"></i>
+                <span class="nav-text">
+                    Курсы
+                </span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'students:appslist' %}?type=course">
+                <i class="fa fa-suitcase fa-2x"></i>
+                <span class="nav-text">
+                    Мои заявки
+                </span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'students:archivelist' %}">
+                <i class="fa fa-archive fa-2x"></i>
+                <span class="nav-text">
+                   Архив
+                </span>
+            </a>
+        </li>
+    {% else %}
+        {% if group == 'Администраторы' %}
+            <li>
+                <a href="#">
+                    <i class="fa fa-database fa-2x"></i>
+                    <span class="nav-text">
+                       Справочники
+                    </span>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{% url 'centre:userslist' %}">
+                            <i class="fa fa-users fa-2x"></i>
+                            <span class="nav-text">
+                               Пользователи
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'centre:choose_cats' %}">
+                            <i class="fa fa-braille fa-2x"></i>
+                            <span class="nav-text">
+                               Категории
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'centre:eventtypes' %}">
+                            <i class="fa fa-bars fa-2x"></i>
+                            <span class="nav-text">
+                               Типы мероприятий
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'centre:positionslist' %}">
+                            <i class="fa fa-star fa-2x"></i>
+                            <span class="nav-text">
+                               Должности
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'centre:ooslist' %}">
+                            <i class="fa fa-building  fa-2x"></i>
+                            <span class="nav-text">
+                               Организации
+                            </span>
+                        </a>
+                    </li>
+              </ul>
+            </li>
+        {% endif %}
+        <li>
+            <a href="#">
+                <i class="fa fa-university fa-2x"></i>
+                <span class="nav-text">
+                   Учебная деятельность
+                </span>
+            </a>
+            <ul class="submenu">
+                <li>
+                    {% if group == 'Администраторы' %}
+                        <a href="{% url 'centre:programslist' %}">
+                    {% else %}
+                        <a href="{% url 'dep:programslist' %}">
+                    {% endif %}
+                        <i class="fa fa-pencil-square fa-2x"></i>
+                        <span class="nav-text">
+                           Перечень ДПП
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    {% if group == 'Администраторы' %}
+                        <a href="{% url 'centre:planning_choose' %}">
+                    {% else %}
+                        <a href="{% url 'dep:plan_choose' %}">
+                    {% endif %}
+                        <i class="fa fa-line-chart fa-2x"></i>
+                        <span class="nav-text">
+                           Планирование
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    {% if group == 'Администраторы' %}
+                        <a href="{% url 'centre:studentgroups' %}">
+                    {% else %}
+                        <a href="{% url 'dep:studentgroups' %}">
+                    {% endif %}
+                        <i class="fa fa-list fa-2x"></i>
+                        <span class="nav-text">
+                           Управление группами
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    {% if group == 'Администраторы' %}
+                        <a href="{% url 'centre:schedulelist' %}">
+                    {% else %}
+                        <a href="{% url 'dep:schedulelist' %}">
+                    {% endif %}
+                        <i class="fa fa-calendar fa-2x"></i>
+                        <span class="nav-text">
+                           Расписания
+                        </span>
+                    </a>
+                </li>
+          </ul>
+        </li>
+        {% if group == 'Администраторы' %}
+            <li>
+                <a href="{% url 'centre:reports' %}">
+                    <i class="fa fa-newspaper-o fa-2x"></i>
+                    <span class="nav-text">
+                       Отчеты
+                    </span>
+                </a>
+            </li>
+        {% endif %}
+    {% endif %}
+    {% if teacher is True %}
+    <li>
+        <a href="{% url 'pers_schedule' %}">
+           <i class="fa fa-tasks fa-2x"></i>
+            <span class="nav-text">
+                Личное расписание
+            </span>
+        </a>
+    </li>
+    {% endif %}
+    <li>
+        <a href="{% url 'authen:profile' %}">
+           <i class="fa fa-id-card fa-2x"></i>
+            <span class="nav-text">
+                Профиль
+            </span>
+        </a>
+    </li>
+    </ul>
+
+    <ul class="logout">
+    <li>
+       <a href="{% url 'authen:logout_user' %}">
+             <i class="fa fa-power-off fa-2x"></i>
+            <span class="nav-text">
+                Выход
+            </span>
+        </a>
+    </li>
+    </ul>

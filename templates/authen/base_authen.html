@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="{% static 'work\favicon.ico' %}">
+    <title>АИС "Учебный центр"</title>
+    <link href="{% static 'bootstrap/css/bootstrap.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'bootstrap/css/fontawesome.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/base_auth.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/rotate.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/modal_registr.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/notif.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/login_radio.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/tables.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/modal.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/fontawesome/css/font-awesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/fontawesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+    {% block js %}{% endblock %}
+</head>
+<body class="text-center amogus">
+  {% block body %}
+  {% endblock %}
+</body>
+</html>

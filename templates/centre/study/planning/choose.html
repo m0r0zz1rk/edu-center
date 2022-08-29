@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block js %}
+{% load static %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<script src="{% static 'js/choose_planning.js' %}" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+{% load static %}
+    <table border="0" style="margin:0 auto;">
+        <tr>
+            <td>
+                <button class=" btn btn-lg btn-primary"
+                    onclick="document.location.href = '{% url 'centre:courseslist' %}'">
+                    Курсы (ОУ)
+                </button>
+            </td>
+            <td>
+                <button class=" btn btn-lg btn-primary"
+                        onclick="document.location.href = '{% url 'centre:eventslist' %}'">
+                    Мероприятия (ИКУ)
+                </button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <button class=" btn btn-lg btn-primary"
+                        onclick="PlanningParams();window.location.href='#win';">
+                    Параметры планирования
+                </button>
+            </td>
+        </tr>
+    </table>
+<a href="#x" class="overlay" id="win"></a>
+    <div class="popup" id="params">
+        <button type="button" class=" btn btn-lg btn-primary"
+              onclick="window.location.href='#close';">
+                  Закрыть
+        </button>
+    </div>
+{% endblock %}

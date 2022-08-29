@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static study_tags %}
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<script src="{% static 'js/course_list.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/ajax.js' %}" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+    {% get_programs as programs %}
+    <div class="main-center">
+        <h2>Перечень курсов (ОУ)</h2><br>
+        <table class="table_crit">
+            <thead>
+                <tr>
+                    <th colspan="7">
+                        Количество найденных курсов в базе: {{ courses.count }}<br>
+                        <a href="{% url 'centre:coursecreate' %}"><i class="fa fa-plus fa-2x"></i></a>
+                        <a href="#win_find"><img src="{% static 'work/discover.png' %}" width="3%" height="3%"></a>
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="3">ДПП</th>
+                    <th rowspan="2">Место проведения</th>
+                    <th rowspan="2">Дата начала обучения</th>
+                    <th rowspan="2">Дата окончания обучения</th>
+                    <th rowspan="2">Действия</th>
+                </tr>
+                <tr>
+                    <th>Наименование</th>
+                    <th>Тип</th>
+                    <th>Объем (часов)</th>
+                </tr>
+            </thead>
+           <tbody>
+                {% for course in courses|slice:75 %}
+                    <tr>
+                        <td>{{ course.program.name }}</td>
+                        <td>{{ course.program.type_dpp }}</td>
+                        <td>{{ course.program.duration }}</td>
+                        <td>{{ course.place }}</td>
+                        <td>{{ course.date_start|date:"d.m.Y" }}</td>
+                        <td>{{ course.date_finish|date:"d.m.Y" }}</td>
+                        <td>
+                            <table>
+                                <tr style="border: none;">
+                                    <td style="border: none;">
+                                       <a href="#win_{{ course.id }}"><i class="fa fa-pencil-square-o fa-2x"></i></a>
+                                         <a href="#x" class="overlay" id="win_{{ course.id }}"></a>
+                                            <div class="popup">
+                                              <center>
+                                                  <form method="POST">
+                                                      {% csrf_token %}
+                                                      <input type="hidden" name="id" value="{{ course.id }}">
+                                                      <table class="table_crit">
+                                                          <thead>
+                                                            <tr>
+                                                                <th colspan="2">
+                                                                    Редактирование сроков прохождения курса
+                                                                </th>
+                                                            </tr>
+                                                          </thead>
+                                                          <tbody>
+                                                                <tr>
+                                                                    <td>
+                                                                        Место проведения:
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="text" class="form-control" name="place" style="text-align: center;"
+                                                                               value="{{ course.place }}" required>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        Дата начала обучения:
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="date" class="form-control" name="date_start" style="text-align: center;"
+                                                                               id="StartDate_{{ course.id }}" value="{{ course.date_start|date:'Y-m-d' }}" required>
+                                                                        <div class=".err" style="color: red;"></div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        Дата окончания обучения:
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="date" class="form-control" name="date_finish" style="text-align: center;"
+                                                                               id="FinishDate_{{ course.id }}" value="{{ course.date_finish|date:'Y-m-d' }}" required>
+                                                                        <div class="err" style="color: red;"></div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td colspan="2">
+                                                                        <div style="width: 50%; margin: 0 auto;">
+                                                                            <button type="submit" class=" btn btn-lg btn-primary"
+                                                                                onclick="document.location.href ='#'">
+                                                                                Изменить информацию
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                          </tbody>
+                                                      </table>
+                                                  </form>
+                                                  <div style="width: 50%; margin: 0 auto;">
+                                                      <button type="button" class=" btn btn-lg btn-primary"
+                                                              onclick="window.location.href='#close';">
+                                                          Закрыть
+                                                      </button><br>
+                                                  </div>
+                                              </center>
+                                        </div>
+                                    </td>
+                                    <td style="border: none;">
+                                        <form action="{% url 'centre:coursedel' %}" method="POST" id="del_form_{{ course.id }}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="id" value="{{ course.id }}">
+                                            <div class="inl">
+                                               <a href="javascript:;"
+                                                 onclick="if (confirm('Вы действительно хотите удалить курс? Также будет удалена группа')){document.getElementById('del_form_{{ course.id }}').submit();}">
+                                                   <i class="fa fa-trash fa-2x"></i>
+                                               </a>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <form method="GET">
+        <a href="#x" class="overlay" id="win_find"></a>
+            <div class="popup">
+              <center>
+                  <table class="table_crit">
+                      <thead>
+                        <tr>
+                            <th colspan="2">
+                                Поиск по курсам
+                            </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                            {% csrf_token %}
+                            <tr>
+                                <td>
+                                    Наименование ДПП
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="name">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Объем ДПП (часов)
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="duration">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Дата обучения
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control" name="study_date">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div style="width: 50%; margin: 0 auto;">
+                                        <button type="submit" class=" btn btn-lg btn-primary"
+                                            onclick="document.location.href ='#'">
+                                            Поиск
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                      </tbody>
+                  </table>
+                  <table border="0">
+                      <tr>
+                          <td>
+                              <button type="button" class=" btn btn-lg btn-primary"
+                                      onclick="window.location.href='#close';">
+                                  Закрыть
+                              </button><br>
+                          </td>
+                      </tr>
+                  </table>
+              </center>
+            </div>
+        </form>
+{% endblock %}

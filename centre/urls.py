@@ -1,0 +1,57 @@
+from django.conf.urls.static import static
+from django.urls import path
+from config import settings
+from .views import *
+
+app_name = 'centre'
+
+urlpatterns = [
+    path('guides/choose_cats', choose_cats, name='choose_cats'),
+    path('guides/oos', OosListView.as_view(), name='ooslist'),
+    path('guides/positions', PositionsListView.as_view(), name='positionslist'),
+    path('guides/users', UsersListView.as_view(), name='userslist'),
+    path('guides/eventtypes', EventTypesList.as_view(), name='eventtypes'),
+    path('guides/user/<int:pk>', UserDetailView.as_view(), name='userdetail'),
+    path('guides/users/change_status', UserChangeStatus, name='userchangestatus'),
+    path('guides/poscats', PosCategoriesListView.as_view(), name='poscatslist'),
+    path('guides/audcats', AudCategoriesListView.as_view(), name='audcatslist'),
+    path('guides/change_oo', oo_change, name='change_oo'),
+    path('guides/change_user', change_user, name='change_user'),
+    path('guides/delete_oo', oo_delete, name='delete_oo'),
+    path('guides/delete_pos', delete_pos, name='delete_pos'),
+    path('guides/delete_cat', delete_cat, name='delete_cat'),
+    path('guides/delete_cat_aud', delete_cat_aud, name='delete_cat_aud'),
+    path('guides/delete_user', delete_user, name='delete_user'),
+    path('guides/new_oo', oo_new, name='new_oo'),
+    path('guides/new_pos', new_pos, name='new_pos'),
+    path('guides/new_cat', new_cat, name='new_cat'),
+    path('guides/new_cat_aud', new_cat_aud, name='new_cat_aud'),
+    path('guides/personalschedule_<int:teach>', PersonalSchedule.as_view(), name='personalsch'),
+    path('study/programs', ProgramsListView.as_view(), name='programslist'),
+    path('study/programs/order_view', doc_view, name='orderview'),
+    path('study/newprogram', ProgramCreateView.as_view(), name='newprogram'),
+    path('study/editprogram_<int:pk>', ProgramDetailView.as_view(), name='editprogram'),
+    path('study/delprogram', delete_program, name='delprogram'),
+    path('study/kug_<int:id>', change_kug, name='changekug'),
+    path('study/kug/add_module', add_module, name='kugaddmodule'),
+    path('study/kug/change_module', change_module, name='kugchangemodule'),
+    path('study/kug/change_theme', change_theme, name='kugchangetheme'),
+    path('study/kug/add_theme', add_theme, name='kugaddtheme'),
+    path('study/kug/del_element', KugDeleteElement, name='kugdelelement'),
+    path('study/kug/kug_finishedit', KugEditFinish, name='kugeditfinish'),
+    path('study/planning/choose', planning_choose, name="planning_choose"),
+    path('study/planning/courses', CoursesList.as_view(), name='courseslist'),
+    path('study/planning/course_create', CoursesCreate.as_view(), name='coursecreate'),
+    path('study/planning/course_del', course_del, name='coursedel'),
+    path('study/planning/events', EventsList.as_view(), name='eventslist'),
+    path('study/planning/event_create', EventsCreate.as_view(), name='eventcreate'),
+    path('study/planning/event_<int:pk>', EventDetailView.as_view(), name='editevent'),
+    path('study/schedule', ShedulesList.as_view(), name='schedulelist'),
+    path('study/schedule/course_lessons_<int:group>', CourseLessonsList.as_view(), name='courselessons'),
+    path('study/schedule/event_lessons_<int:group>', EventLessonsList.as_view(), name='eventlessons'),
+    path('study/studentgroups', StudentsGroupList.as_view(), name='studentgroups'),
+    path('study/students', StGrStudentsList.as_view(), name='studentslist'),
+    path('study/studentgroups/new', StudentGroupCreate.as_view(), name='groupnew'),
+    path('reports/', ReportsView.as_view(), name='reports'),
+]
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
